@@ -1,0 +1,3 @@
+[submodule "depends/tetra-meta"]
+	path = depends/tetra-meta
+	url = https://github.com/projectTetra/tetra-meta
