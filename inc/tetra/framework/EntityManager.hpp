@@ -36,7 +36,14 @@ class EntityManager
 public:
   using EntityId = std::size_t;
   using EntityMap = std::unordered_map<EntityId, Entity>;
-  using EntityList = std::vector<Entity*>;
+
+  struct EntityDescriptor
+  {
+    EntityId entityId;
+    Entity* entity;
+  };
+
+  using EntityList = std::vector<EntityDescriptor>;
 
 private:
   EntityMap entityMap;
@@ -50,8 +57,9 @@ public:
   /**
    * Retrieves the entity with the EntityId given.
    * @throws EntityDoesNotExistException if the entity does not exist.
+   * @param entityId The Id of the entity to retrieve.
    **/
-  Entity& getEntity() noexcept;
+  Entity& getEntity( EntityId entityId ) noexcept;
 
   /**
    * Returns a vector of all entities currently in the EntityManager.
@@ -59,35 +67,42 @@ public:
   EntityList getAllEntities() noexcept;
 
   /**
+   * Returns a vector of all entities which have the requested
+   * component types.
+   **/
+  template <class... ComponentTypes>
+  EntityList getEntities() noexcept;
+
+  /**
    * Publishes a DestroyEntityMessage which will cause the entity to
    * be destroyed on the next call to update(). (if the entity is
    * already gone or non-existent then proccessing this message is
    * effectively a no-op).
+   * (note, this can be done manually by calling getMessageManager()
+   * and publishing a DestroyEntityMessage)
    **/
   void postDestroyEntityMessage( EntityId id ) noexcept;
 
-private:
   /**
-   * Handles a destroyed entity message, private so that systems don't
-   * call this directly, but friended to the MessageManager so that we
-   * can create a delegate.
+   * Processes all pending messages. (this is when destroy entity
+   * messages are processed)
    **/
-  void handleDestroyEntity( const DestroyEntityMessage& message );
+  void update();
 };
 
-class DestroyEntityMessage
+template <class... Types>
+EntityManager::EntityList EntityManager::getEntities() noexcept
 {
-  const EntityManager::EntityId id;
-
-public:
-  inline DestroyEntityMessage( EntityManager::EntityId id )
-    : id{id} {};
-
-  inline EntityManager::EntityId getEntityId() const noexcept
+  EntityList entityList{};
+  for( auto& entry : entityMap )
   {
-    return id;
-  };
-};
+    Entity& entity = entry.second;
+    if (entity.hasComponents<Types...>())
+      entityList.push_back( {entry.first, &entity} );
+  }
+
+  return entityList;
+}
 
 } /* namespace framework */
 } /* namespace tetra */
