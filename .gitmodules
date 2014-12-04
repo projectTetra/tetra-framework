@@ -1,3 +1,6 @@
 [submodule "depends/tetra-meta"]
 	path = depends/tetra-meta
 	url = https://github.com/projectTetra/tetra-meta
+[submodule "depends/tetra-message"]
+	path = depends/tetra-message
+	url = git@github.com:projectTetra/tetra-message.git

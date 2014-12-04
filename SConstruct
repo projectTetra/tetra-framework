@@ -1,7 +1,13 @@
 env = Environment()
-env['CPPPATH'] = [ './inc', './depends/tetra-meta/inc' ]
-env['LIBPATH'] = [ './bin', './depends/tetra-meta/bin' ]
-env['LIBS'] = [ 'tetraMeta' ]
+env['CPPPATH'] = [ './inc', 
+                   './depends/tetra-meta/inc',
+                   './depends/tetra-message/inc' ]
+
+env['LIBPATH'] = [ './bin', 
+                   './depends/tetra-meta/bin', 
+                   './depends/tetra-message/bin' ]
+
+env['LIBS'] = [ 'tetraMeta', 'tetraMessage' ]
 env['CXX'] = 'clang++';
 env['CXXFLAGS'] = [ '-std=c++11', '-ggdb' ]
 
