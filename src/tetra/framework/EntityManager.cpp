@@ -8,6 +8,14 @@ using namespace tetra::framework;
 using EntityId = EntityManager::EntityId;
 using EntityList = EntityManager::EntityList;
 
+EntityDoesNotExistException::EntityDoesNotExistException()
+  : runtime_error{"Entity does not exist!"} {};
+
+EntityManager::EntityDescriptor::EntityDescriptor( EntityId id,
+                                                   Entity* pEnt )
+  : entityId{id}, entity{pEnt}
+{ }
+
 EntityId EntityManager::createEntity() noexcept
 {
   static EntityId index{0};

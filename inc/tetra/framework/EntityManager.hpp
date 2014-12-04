@@ -16,13 +16,7 @@ namespace framework
  * Thrown by the EntityManager when an operation is done on an entity
  * that does not exist.
  **/
-class EntityDoesNotExistException : public std::runtime_error
-{
-public:
-  inline EntityDoesNotExistException()
-    : std::runtime_error{"Entity does not exist"}
-  { }
-};
+class EntityDoesNotExistException;
 
 /**
  * The EntityManager is the core of the tetra-framework.
@@ -32,19 +26,10 @@ public:
 class EntityManager
 {
 public:
+  struct EntityDescriptor;
+
   using EntityId = std::size_t;
   using EntityMap = std::unordered_map<EntityId, Entity>;
-
-  struct EntityDescriptor
-  {
-    EntityDescriptor() = default;
-    inline EntityDescriptor( EntityId id, Entity* ptr )
-      : entityId{id}, entity{ptr} {};
-
-    EntityId entityId;
-    Entity* entity;
-  };
-
   using EntityList = std::vector<EntityDescriptor>;
 
 private:
@@ -95,20 +80,22 @@ public:
   void update();
 };
 
-template <class... Types>
-EntityManager::EntityList EntityManager::getEntities() noexcept
+class EntityDoesNotExistException : public std::runtime_error
 {
-  EntityList entityList{};
-  for ( auto& entry : entityMap )
-  {
-    Entity& entity = entry.second;
-    if ( entity.hasComponents<Types...>() )
-      entityList.emplace_back( entry.first, &entity );
-  }
+public:
+  EntityDoesNotExistException();
+};
 
-  return entityList;
-}
+struct EntityManager::EntityDescriptor
+{
+  EntityDescriptor() = default;
+  EntityDescriptor( EntityId, Entity* );
 
+  EntityId entityId;
+  Entity* entity;
+};
+
+#include <tetra/framework/entitymanager/EntityManagerImpl.hpp>
 } /* namespace framework */
 } /* namespace tetra */
 
