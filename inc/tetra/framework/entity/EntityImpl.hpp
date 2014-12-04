@@ -36,8 +36,7 @@ Entity& Entity::addComponent( T&& component ) noexcept
   auto variant =
     meta::Variant::create( std::forward<T&&>( component ) );
 
-  components.emplace( &variant.getMetaData(), std::move( variant ) );
-  return *this;
+  return addComponent( std::move( variant ) );
 }
 
 template <class... ComponentTypes>

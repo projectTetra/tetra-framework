@@ -2,7 +2,7 @@
 #ifndef TETRA_FRAMEWORK_ENTITY_HPP
 #define TETRA_FRAMEWORK_ENTITY_HPP
 
-#include <tetra/meta/Variant.hpp>
+#include <tetra/meta/MetaRepository.hpp>
 
 #include <unordered_map>
 #include <iostream>
@@ -58,6 +58,13 @@ public:
   Entity& addComponent( T&& component ) noexcept;
 
   /**
+   * Adds a variant as a component, overwrites any components with the
+   * same type already on this Entity.
+   * @return *this
+   **/
+  Entity& addComponent( meta::Variant&& component ) noexcept;
+
+  /**
    * Returns true if the entity contains all of the components
    * requested.
    **/
@@ -72,6 +79,33 @@ public:
    **/
   template <class ComponentType>
   ComponentType& getComponent() const;
+
+  /**
+   * Uses the MetaRepository to serialize all of this Entity's
+   * components.
+   * @throws TypeNotRegisteredException if any of the variants
+   *         contains a type which was not registered with the
+   *         MetaRepository. (does not modify the root json node if
+   *         this happens)
+   * @param repository The MetaRepository to use for serialization of
+   *        components.
+   * @param root The root json node to serialize into.
+   **/
+  void serialize( const meta::MetaRepository& repository,
+                  Json::Value& root ) const;
+
+  /**
+   * Uses the MetaRepository to deserialize all of this Entity's
+   * components.If the entity already has a component that is the same
+   * type as one that is being deserialized, then the pre-existing
+   * component will be replaced with the deserialized one.
+   * @throws TypeNotRegisteredException if a component is of an
+   *         unregistered type.
+   * @param repository The MetaRepository to use for deserialization.
+   * @param root The root json node to deserialize from.
+   **/
+  void deserialize( const meta::MetaRepository& repository,
+                    Json::Value& root );
 };
 
 #include <tetra/framework/entity/EntityImpl.hpp>

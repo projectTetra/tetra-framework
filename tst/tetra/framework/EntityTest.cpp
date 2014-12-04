@@ -1,12 +1,103 @@
 #include <tetra/framework/Entity.hpp>
+#include <tetra/meta/MetaRepository.hpp>
 
 #include <catch.hpp>
+#include <json/json.h>
+#include <test/VectorComponent.hpp>
+#include <test/Widget.hpp>
 
 using namespace std;
 using namespace tetra;
+using namespace tetra::meta;
 using namespace tetra::framework;
 
-SCENARIO( "Using an Entity to hold components", "[entity]" ) 
+Json::Value createEntityNode()
+{
+  Json::Value root;
+  Json::Value components;
+  Json::Value component;  
+  Json::Value object;
+
+  Variant comp =
+    Variant::create( test::VectorComponent{5.0f, 1.0f, -0.3f} );
+  comp.serialize( object );
+  component["type"] = "vectorComponent";
+  component["object"] = object;
+
+  components.append(component);
+  root["components"] = components;
+
+  return root;
+}
+
+SCENARIO( "Serializing an entity", "[entity][serialization]" )
+{
+  GIVEN(
+    "A MetaRepository with VectorComponent and Widget registered" )
+  {
+    meta::MetaRepository repository;
+    repository.addType<test::VectorComponent>( "vectorComponent" );
+    repository.addType<test::Widget>( "widget" );
+
+    THEN( "We should be able to serialize an Entity with "
+          "VectorComponent and Widget components" )
+    {
+      Entity entity{};
+      entity.addComponent( test::VectorComponent{1.0f, -5.0f, 0.3f} )
+        .addComponent( test::Widget{} );
+
+      Json::Value root;
+      entity.serialize( repository, root );
+
+      Json::Value components = root.get( "components", 5 );
+      REQUIRE( components.isArray() );
+    }
+
+    THEN( "We should be able to deserialize an Entity" )
+    {
+      Entity entity{};
+      Json::Value root = createEntityNode();
+
+      entity.deserialize( repository, root );
+      
+      REQUIRE( entity.hasComponents<test::VectorComponent>() );
+      const auto& vectorComponent =
+        entity.getComponent<test::VectorComponent>();
+
+      REQUIRE( vectorComponent.getX() == 5.0f );
+      REQUIRE( vectorComponent.getY() == 1.0f );
+      REQUIRE( vectorComponent.getZ() == -0.3f );
+    }
+  }
+
+  GIVEN( "A MetaRepository without any types registered" )
+  {
+    MetaRepository repository;
+
+    THEN( "Serializing an entity should throw a "
+          "TypeNotRegisteredException" )
+    {
+      Entity entity;
+      entity.addComponent( test::VectorComponent{1.0f, 1.0f, 1.0f} );
+
+      Json::Value root;
+      REQUIRE_THROWS_AS( entity.serialize( repository, root ),
+                         TypeNotRegisteredException );
+    }
+
+    THEN( "Deserializing an entity should throw a "
+          "TypeNotRegisteredException" )
+    {
+      Entity entity;
+      Json::Value root = createEntityNode();
+
+      REQUIRE_THROWS_AS( entity.deserialize( repository, root ),
+                         TypeNotRegisteredException );
+    }
+  }
+}
+
+SCENARIO( "Using an Entity to hold components", "[entity]" )
 {
   Entity entity{};
   entity.addComponent( string{"hello"} ).addComponent( 5 );
