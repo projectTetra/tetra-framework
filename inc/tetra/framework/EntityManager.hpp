@@ -24,8 +24,6 @@ public:
   { }
 };
 
-class DestroyEntityMessage; 
-
 /**
  * The EntityManager is the core of the tetra-framework.
  * The EntityManager manages a set of entities and facilitates the
@@ -39,6 +37,10 @@ public:
 
   struct EntityDescriptor
   {
+    EntityDescriptor() = default;
+    inline EntityDescriptor( EntityId id, Entity* ptr )
+      : entityId{id}, entity{ptr} {};
+
     EntityId entityId;
     Entity* entity;
   };
@@ -47,6 +49,7 @@ public:
 
 private:
   EntityMap entityMap;
+  std::vector<EntityId> entitiesToDestroy;
 
 public:
   /**
@@ -58,8 +61,10 @@ public:
    * Retrieves the entity with the EntityId given.
    * @throws EntityDoesNotExistException if the entity does not exist.
    * @param entityId The Id of the entity to retrieve.
+   * @return referencet to the entity with this id, the reference is
+   *         only valid until the next call to update()
    **/
-  Entity& getEntity( EntityId entityId ) noexcept;
+  Entity& getEntity( EntityId entityId );
 
   /**
    * Returns a vector of all entities currently in the EntityManager.
@@ -94,11 +99,11 @@ template <class... Types>
 EntityManager::EntityList EntityManager::getEntities() noexcept
 {
   EntityList entityList{};
-  for( auto& entry : entityMap )
+  for ( auto& entry : entityMap )
   {
     Entity& entity = entry.second;
-    if (entity.hasComponents<Types...>())
-      entityList.push_back( {entry.first, &entity} );
+    if ( entity.hasComponents<Types...>() )
+      entityList.emplace_back( entry.first, &entity );
   }
 
   return entityList;
