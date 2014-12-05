@@ -14,10 +14,8 @@ void Entity::serialize( const MetaRepository& repository,
   for ( const auto& component : this->components )
   {
     Json::Value componentNode;
-    if (repository.serialize( component.second, componentNode ))
-    {
-      componentList.append( componentNode );
-    }
+    repository.serialize( component.second, componentNode );
+    componentList.append( componentNode );
   }
 
   root["components"] = componentList;

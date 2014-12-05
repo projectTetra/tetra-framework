@@ -25,6 +25,11 @@ Json::Value createEntityNode()
   component["object"] = object;
 
   components.append(component);
+
+  Json::Value widgetComponent;
+  widgetComponent["type"] = "widget";
+  components.append(widgetComponent);
+
   root["components"] = components;
 
   return root;
@@ -61,6 +66,7 @@ SCENARIO( "Serializing an entity", "[entity][serialization]" )
       entity.deserialize( repository, root );
       
       REQUIRE( entity.hasComponents<test::VectorComponent>() );
+      REQUIRE( entity.hasComponents<test::Widget>() );
       const auto& vectorComponent =
         entity.getComponent<test::VectorComponent>();
 
