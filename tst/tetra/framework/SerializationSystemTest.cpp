@@ -37,7 +37,8 @@ SCENARIO( "Using the SerializationSystem to serialize and "
 
     THEN( "Serializing an EntityManager should be successful" )
     {
-      serializer.serialize( manager, cout );
+      stringstream ss;
+      serializer.serialize( manager, ss ); 
     }
 
     THEN( "Deserializing the EntityManager should be successful" )

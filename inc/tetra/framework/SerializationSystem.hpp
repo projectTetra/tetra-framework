@@ -25,7 +25,7 @@ public:
    * Serializes the contents of the EntityManager to the output stream
    * provided.
    **/
-  void serialize( const EntityManager& entityManager,
+  void serialize( EntityManager& entityManager,
                   std::ostream& out ) const;
 
   /**
