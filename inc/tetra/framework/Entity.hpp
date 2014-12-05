@@ -58,6 +58,13 @@ public:
   Entity& addComponent( T&& component ) noexcept;
 
   /**
+   * Removes the component, if present, from the Entity.
+   * @templateParam ComponentType The type of the component to remove.
+   **/
+  template <class ComponentType>
+  void removeComponent();
+
+  /**
    * Adds a variant as a component, overwrites any components with the
    * same type already on this Entity.
    * @return *this

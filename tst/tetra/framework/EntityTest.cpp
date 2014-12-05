@@ -119,6 +119,17 @@ SCENARIO( "Using an Entity to hold components", "[entity]" )
       REQUIRE( hasIntAndString );
     }
 
+    THEN(
+      "Removing a component should actually remove the component" )
+    {
+      entity.removeComponent<int>();
+      REQUIRE( !entity.hasComponents<int>() );
+
+      entity.removeComponent<test::Widget>();
+
+      REQUIRE( entity.hasComponents<string>() );
+    }
+
     THEN( "The entity should not claim to contain any components "
           "that it doesn't actually contain" )
     {
