@@ -19,27 +19,32 @@ EntityManager::EntityDescriptor::EntityDescriptor( EntityId id,
 EntityId EntityManager::createEntity() noexcept
 {
   static EntityId index{0};
-  EntityId id = ++index;  
-  
+  EntityId id = ++index;
+
   entityMap.emplace( id, Entity{} );
 
   return id;
 }
 
-Entity& EntityManager::getEntity( EntityId id )
+bool EntityManager::entityExists( EntityId id ) const noexcept
 {
   auto iter = entityMap.find( id );
-  if (iter == end(entityMap))
+  return iter != end( entityMap );
+}
+
+Entity& EntityManager::getEntity( EntityId id )
+{
+  if (!entityExists(id))
     throw EntityDoesNotExistException{};
 
-  return iter->second;
+  return entityMap.find( id )->second;
 }
 
 EntityList EntityManager::getAllEntities() noexcept
 {
   EntityList entityList;
   entityList.reserve( entityMap.size() );
-  
+
   for( auto& iter : entityMap )
   {
     entityList.emplace_back( iter.first, &iter.second );

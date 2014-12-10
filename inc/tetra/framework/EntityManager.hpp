@@ -52,6 +52,11 @@ public:
   Entity& getEntity( EntityId entityId );
 
   /**
+   * Returns true if the entity exists, false if it doesn't.
+   **/
+  bool entityExists( EntityId entityId ) const noexcept;
+
+  /**
    * Returns a vector of all entities currently in the EntityManager.
    **/
   EntityList getAllEntities() noexcept;
